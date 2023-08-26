@@ -29,7 +29,7 @@ $ python3 nrrd2npy.py --patient_path Hippo_dataset_VGHTC_share/test
 ## Segment
 - Output will save in **"Output/patient_name"**
 ```
-$ python3 train_VGHTC.py --model_name 0722VGHTC --test --ckpt_path lightning_logs/0722VGHTC/checkpoints/epoch\=499-step\=374000.ckpt --patient_name test --save_result
+$ python3 train_VGHTC.py --model_name 0722VGHTC --predict --ckpt_path lightning_logs/0722VGHTC/checkpoints/epoch\=499-step\=374000.ckpt --patient_name test --save_result
 ```
 
 ## Training
