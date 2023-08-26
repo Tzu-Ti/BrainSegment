@@ -138,10 +138,46 @@ class VGHTCDataset(Dataset):
 
     def __len__(self):
         return len(self.all_mr_path)
+    
+class VGHTCDatasetNoSeg(Dataset):
+    def __init__(self, folder='../Hippo_dataset_VGHTC_share', size=256, num_classes=44, patient_name='HIP_002'):
+        self.folder = folder
+        self.num_classes = num_classes
+
+        patient_paths = [os.path.join(folder, patient_name)]
+
+        self.all_mr_path = []
+        for patient_path in patient_paths:
+            mrs = glob.glob(os.path.join(patient_path, 'MR_npy', '*.npy'))
+            self.all_mr_path += mrs     
+
+        self.all_mr_path.sort()
+
+
+        self.transform = torchvision.transforms.Compose([
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize([0.5], [0.5]),
+            torchvision.transforms.Resize([size, size], antialias=True)
+        ])
+        self.Resize = torchvision.transforms.Resize([size, size], torchvision.transforms.InterpolationMode.NEAREST, antialias=True)
+
+    def __getitem__(self, index):
+        mr_path = self.all_mr_path[index]
+
+        img = np.load(mr_path)
+
+        # Image Normalization
+        img = (img - img.min()) / (img.max() - img.min())
+        img = self.transform(img).type(torch.float32)
+
+        return img
+
+    def __len__(self):
+        return len(self.all_mr_path)
         
 if __name__ == '__main__':
     # D = HippoDataset()
-    D = VGHTCDataset(patient_name='HIP_002', train=False)
+    D = VGHTCDatasetNoSeg(patient_name='HIP_002')
     for img, seg in D:
         pass
         # print(img.shape)

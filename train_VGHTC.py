@@ -21,7 +21,7 @@ from torch.nn import functional as F
 import torch.optim as optim
 
 from models.Unet import UNet
-from data.dataset import VGHTCDataset
+from data.dataset import VGHTCDataset, VGHTCDatasetNoSeg
 
 from utils import Unormalize
 from utils import MeasureMetric
@@ -38,6 +38,7 @@ def parse():
     # Mode
     parser.add_argument('--train', action="store_true")
     parser.add_argument('--test', action="store_true")
+    parser.add_argument('--predict', action="store_true")
     parser.add_argument('--resume', action="store_true")
     parser.add_argument('--ckpt_path')
     # I/O
@@ -174,6 +175,31 @@ class Model_factory(pl.LightningModule):
             MR, header = nrrd.read(os.path.join(self.args.root, self.args.patient_name, 'MR.nrrd'))
             nrrd.write(os.path.join(folder, 'prediction.seg.nrrd'), pred,
                        header=header)
+            
+    def predict_step(self, batch, batch_idx):
+        img = batch
+        output = self.UNet(img)
+
+        pred = F.softmax(output, dim=1)
+        pred = torch.argmax(pred, dim=1, keepdims=True).type(torch.uint8)
+
+        if self.args.save_result:
+            pred = pred.squeeze(1)
+            if batch_idx == 0:
+                self.prediction = pred
+            else:
+                self.prediction = torch.cat([self.prediction, pred], dim=0)
+    
+    def on_predict_end(self):
+        pred = self.prediction.permute(1, 2, 0).cpu().detach().numpy()
+        pred = self.Mappingback(pred)
+
+        folder = "Output/{}".format(self.args.patient_name)
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+        MR, header = nrrd.read(os.path.join(self.args.root, self.args.patient_name, 'MR.nrrd'))
+        nrrd.write(os.path.join(folder, 'prediction.seg.nrrd'), pred,
+                    header=header)
     
     def configure_optimizers(self):
         optimizer = optim.AdamW(self.UNet.parameters(), lr=self.args.lr)
@@ -218,6 +244,11 @@ def main():
     elif args.test:
         test_trainer = pl.Trainer(devices=1, logger=tb_logger)
         test_trainer.test(model=Model, dataloaders=testDataloader, ckpt_path=args.ckpt_path)
+    elif args.predict:
+        predictDataset = VGHTCDatasetNoSeg(folder=args.root, patient_name=args.patient_name, size=args.resolution, num_classes=args.class_num)
+        predictDataloader = DataLoader(dataset=predictDataset, batch_size=args.batch_size, shuffle=False, num_workers=cpu_count())
+        predict_trainer = pl.Trainer(devices=1, logger=tb_logger)
+        predict_trainer.predict(model=Model, dataloaders=predictDataloader, ckpt_path=args.ckpt_path)
               
 if __name__ == '__main__':
     main()
