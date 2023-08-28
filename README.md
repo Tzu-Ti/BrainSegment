@@ -26,10 +26,13 @@ $ python3 nrrd2npy.py --patient_path Hippo_dataset_VGHTC_share/test
 - Because origin label is not continuous, rearrange 0 to 44.
 - Already wrote in **"LabelMap.json"**
 
+## Download weights
+- Download weights from [Our database](http://gofile.me/6Ukc0/BPg8Nru4q) and put in **"weights"** folder.
+
 ## Segment
 - Output will save in **"Output/patient_name"**
 ```
-$ python3 train_VGHTC.py --model_name 0722VGHTC --predict --ckpt_path lightning_logs/0722VGHTC/checkpoints/epoch\=499-step\=374000.ckpt --patient_name test --save_result
+$ python3 Inference.py --ckpt_path weights/epoch\=499-step\=374000.ckpt--patient_name test --save_result
 ```
 
 ## Training
