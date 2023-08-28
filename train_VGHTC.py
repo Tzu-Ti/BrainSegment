@@ -69,7 +69,7 @@ class Model_factory(pl.LightningModule):
         self.RMM = MeasureMetric(metrics=['DICE'])
         self.MM = MeasureMetric(metrics=['DICE'])
 
-        with open (os.path.join('Hippo_dataset_VGHTC_share', 'LabelMap.json')) as f:
+        with open(args.labelmap_path) as f:
             self.LabelMap = json.load(f)
 
     def Mappingback(self, seg):
@@ -191,6 +191,8 @@ class Model_factory(pl.LightningModule):
                 self.prediction = torch.cat([self.prediction, pred], dim=0)
     
     def on_predict_end(self):
+        if not self.args.save_result:
+            return
         pred = self.prediction.permute(1, 2, 0).cpu().detach().numpy()
         pred = self.Mappingback(pred)
 
