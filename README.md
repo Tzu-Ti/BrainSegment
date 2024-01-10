@@ -27,7 +27,7 @@ $ python3 nrrd2npy.py --patient_path Hippo_dataset_VGHTC_share/test
 - Already wrote in **"LabelMap.json"**
 
 ## Download weights
-- Download weights from [Our database](http://gofile.me/6Ukc0/BPg8Nru4q) and put in **"weights"** folder.
+- Download weights from [Our database](http://gofile.me/6Ukc0/dH60XMCzu) and put in **"weights"** folder.
 
 ## Segment
 - Output will save in **"Output/patient_name"**

@@ -72,19 +72,20 @@ class Model_factory(pl.LightningModule):
         with open(args.labelmap_path) as f:
             self.LabelMap = json.load(f)
 
+    def searchKey(self, dict, value):
+        for k, v in dict.items():
+            if v == value:
+                return k
+
     def Mappingback(self, seg):
-        new = seg.copy()
-        for k in self.LabelMap.keys():
-            label = self.LabelMap[k]
-            if label == 0:
-                continue
-            loc = np.where(seg==int(label))
-            if len(loc) == 1:
-                continue
+        new = np.zeros_like(seg, dtype=np.int64)
+        exist_label = list(self.LabelMap.values())
+        for label in range(1, self.args.class_num):
+            if label not in exist_label:
+                origin_label = 0
             else:
-                X, Y, Z = loc
-            for x, y, z in zip(X, Y, Z):
-                new[x, y, z] = k
+                origin_label = int(self.searchKey(self.LabelMap, label))
+            new += np.where(seg==label, origin_label, 0)
         return new
     
     def show_seg(self, x):

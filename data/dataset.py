@@ -140,7 +140,7 @@ class VGHTCDataset(Dataset):
         return len(self.all_mr_path)
     
 class VGHTCDatasetNoSeg(Dataset):
-    def __init__(self, folder='../Hippo_dataset_VGHTC_share', size=256, num_classes=44, patient_name='HIP_002'):
+    def __init__(self, folder, size=256, num_classes=44, patient_name='HIP_002'):
         self.folder = folder
         self.num_classes = num_classes
 

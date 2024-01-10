@@ -35,7 +35,7 @@ def parse():
     # 
     parser.add_argument('--batch_size', type=int, default=4)
     # I/O
-    parser.add_argument('--root', default='/root/hippo/Hippo_dataset_VGHTC_share')
+    parser.add_argument('--root', default='/root/VGHTC/hippo/Hippo_dataset_VGHTC_share')
     parser.add_argument('--labelmap_path', default='LabelMap.json')
     parser.add_argument('--patient_name')
     parser.add_argument('--save_result', action="store_true")
